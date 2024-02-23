@@ -33,12 +33,14 @@ jobs:
 
   release:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
           name: windows-latest-builds
+          path: dist
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
