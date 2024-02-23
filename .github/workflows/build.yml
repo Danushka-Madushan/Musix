@@ -34,7 +34,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: windows-latest-builds
-          path: dist
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
@@ -43,3 +42,7 @@ jobs:
           body: "Built and released on ${{ github.workflow }} workflow."
           draft: false
           prerelease: false
+          files: |
+            *.zip
+            *.dmg
+            *.exe
