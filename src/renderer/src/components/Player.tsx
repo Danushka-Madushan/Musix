@@ -182,6 +182,7 @@ const Player = ({ songContent, setSongContent, Playlist }: PlayerProps): JSX.Ele
                     <path fill="currentColor" d="M5 15V9h4l5-5v16l-5-5zm11 1V7.95q1.125.525 1.813 1.625T18.5 12q0 1.325-.687 2.4T16 16" />
                   </svg>
                   <input
+                    disabled={isMuted}
                     className='cursor-pointer'
                     type="range"
                     min={0}
