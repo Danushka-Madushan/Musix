@@ -6,10 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: ["windows-latest"]
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - name: Install Node.js
@@ -31,7 +28,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.os }}-builds
+          name: windows-latest-builds
           path: dist
 
   release:
@@ -40,6 +37,8 @@ jobs:
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v2
+        with:
+          name: windows-latest-builds
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
