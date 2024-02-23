@@ -1,33 +1,54 @@
-name: Node.js CI
+name: Build and Release Electron App
 
 on:
   push:
-    branches: [ "main" ]
+    tags: [ "v*" ]  # Trigger on tags starting with "v"
 
 jobs:
-  release:
-    runs-on: windows-latest
+  build:
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [20.x]
-
+        os: [ "ubuntu-latest", "macos-latest", "windows-latest" ]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Use Node.js ${{ matrix.node-version }}
+      - uses: actions/checkout@v4
+      - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-
-      - name: Build/release Electron app
-        uses: samuelmeuli/action-electron-builder@v1
+          node-version: 16
+      - name: Install dependencies
+        run: npm install
+      - name: Build Electron app
+        uses: typerefinery-ai/action-electron-builder@v1
         with:
-          # GitHub token, automatically provided to the action
-          # (No need to define this secret in the repo settings)
-          github_token: ${{ secrets.github_token }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          release: true
+          # Optional: Specify additional builder options
+          # builderOptions: |
+          #   {
+          #     "publish": ["github"]
+          #   }
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}-builds
+          path: dist
 
-          # If the commit is tagged with a version (e.g. "v1.0.0"),
-          # release the app after building
-          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          name: ${{ github.ref }}
+          body: "Built and released on ${{ github.workflow }} workflow."
+          draft: false
+          prerelease: false  # Change to true if releasing a pre-release
+          files: |
+            *.zip
+            *.dmg
+            *.exe
