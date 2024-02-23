@@ -2,7 +2,7 @@ name: Build and Release Electron App
 
 on:
   push:
-    tags: [ "v*" ]  # Trigger on tags starting with "v"
+    tags: [ "v*" ]
 
 jobs:
   build:
@@ -20,11 +20,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release: true
-          # Optional: Specify additional builder options
-          # builderOptions: |
-          #   {
-          #     "publish": ["github"]
-          #   }
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -35,9 +30,8 @@ jobs:
     needs: build
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
       - name: Download artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: windows-latest-builds
           path: dist
@@ -48,7 +42,7 @@ jobs:
           name: ${{ github.ref }}
           body: "Built and released on ${{ github.workflow }} workflow."
           draft: false
-          prerelease: false  # Change to true if releasing a pre-release
+          prerelease: false
           files: |
             *.zip
             *.dmg
