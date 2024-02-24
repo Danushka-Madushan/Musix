@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Install Node.js
@@ -20,6 +20,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release: true
+          args: --win
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -28,7 +29,7 @@ jobs:
 
   release:
     needs: build
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
@@ -38,11 +39,9 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref }}
-          name: ${{ github.ref }}
+          name: "latest v{{ '${GITHUB_REF#refs/tags/}' }}"
           body: "Built and released on ${{ github.workflow }} workflow."
           draft: false
           prerelease: false
           files: |
-            *.zip
-            *.dmg
             *.exe
