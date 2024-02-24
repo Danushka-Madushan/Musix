@@ -36,13 +36,15 @@ jobs:
         with:
           name: windows-latest-builds
       - name: Extract version number
-        run: echo "::set-env name=RELEASE_VERSION::${GITHUB_REF/refs\/tags\/v/}"
-        shell: bash
+        run: echo "${GITHUB_REF/refs\/tags\/v/}" > version.txt
+      - name: Read version number from file
+        id: read_version
+        run: echo "::set-output name=RELEASE_VERSION::$(cat version.txt)"
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref }}
-          name: "latest v${{ env.RELEASE_VERSION }}"
+          name: "latest v${{ steps.read_version.outputs.RELEASE_VERSION }}"
           body: "Built and released on ${{ github.workflow }} workflow."
           draft: false
           prerelease: false
